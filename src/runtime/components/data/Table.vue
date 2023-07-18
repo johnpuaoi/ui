@@ -4,15 +4,42 @@
       <thead :class="ui.thead">
         <tr :class="ui.tr.base">
           <th v-if="modelValue" scope="col" class="ps-4">
-            <UCheckbox :checked="indeterminate || selected.length === rows.length" :indeterminate="indeterminate" @change="selected = $event.target.checked ? rows : []" />
+            <UCheckbox
+              :checked="indeterminate || selected.length === rows.length"
+              :indeterminate="indeterminate"
+              @change="handleChange"
+            />
           </th>
 
-          <th v-for="(column, index) in columns" :key="index" scope="col" :class="[ui.th.base, ui.th.padding, ui.th.color, ui.th.font, ui.th.size, column.class]">
-            <slot :name="`${column.key}-header`" :column="column" :sort="sort" :on-sort="onSort">
+          <th
+            v-for="(column, index) in columns"
+            :key="index"
+            scope="col"
+            :class="[
+              ui.th.base,
+              ui.th.padding,
+              ui.th.color,
+              ui.th.font,
+              ui.th.size,
+              column.class
+            ]"
+          >
+            <slot
+              :name="`${column.key}-header`"
+              :column="column"
+              :sort="sort"
+              :on-sort="onSort"
+            >
               <UButton
                 v-if="column.sortable"
                 v-bind="{ ...ui.default.sortButton, ...sortButton }"
-                :icon="(!sort.column || sort.column !== column.key) ? (sortButton.icon || ui.default.sortButton.icon) : sort.direction === 'asc' ? sortAscIcon : sortDescIcon"
+                :icon="
+                  !sort.column || sort.column !== column.key
+                    ? sortButton.icon || ui.default.sortButton.icon
+                    : sort.direction === 'asc'
+                    ? sortAscIcon
+                    : sortDescIcon
+                "
                 :label="column[columnAttribute]"
                 @click="onSort(column)"
               />
@@ -22,13 +49,37 @@
         </tr>
       </thead>
       <tbody :class="ui.tbody">
-        <tr v-for="(row, index) in rows" :key="index" :class="[ui.tr.base, isSelected(row) && ui.tr.selected, $attrs.onSelect && ui.tr.active]" @click="() => onSelect(row)">
+        <tr
+          v-for="(row, index) in rows"
+          :key="index"
+          :class="[
+            ui.tr.base,
+            isSelected(row) && ui.tr.selected,
+            $attrs.onSelect && ui.tr.active
+          ]"
+          @click="() => onSelect(row)"
+        >
           <td v-if="modelValue" class="ps-4">
             <UCheckbox v-model="selected" :value="row" @click.stop />
           </td>
 
-          <td v-for="(column, subIndex) in columns" :key="subIndex" :class="[ui.td.base, ui.td.padding, ui.td.color, ui.td.font, ui.td.size]">
-            <slot :name="`${column.key}-data`" :column="column" :row="row" :index="index">
+          <td
+            v-for="(column, subIndex) in columns"
+            :key="subIndex"
+            :class="[
+              ui.td.base,
+              ui.td.padding,
+              ui.td.color,
+              ui.td.font,
+              ui.td.size
+            ]"
+          >
+            <slot
+              :name="`${column.key}-data`"
+              :column="column"
+              :row="row"
+              :index="index"
+            >
               {{ row[column.key] }}
             </slot>
           </td>
@@ -38,7 +89,12 @@
           <td :colspan="columns.length + (modelValue ? 1 : 0)">
             <slot name="loading-state">
               <div :class="ui.loadingState.wrapper">
-                <UIcon v-if="loadingState.icon" :name="loadingState.icon" :class="ui.loadingState.icon" aria-hidden="true" />
+                <UIcon
+                  v-if="loadingState.icon"
+                  :name="loadingState.icon"
+                  :class="ui.loadingState.icon"
+                  aria-hidden="true"
+                />
                 <p :class="ui.loadingState.label">
                   {{ loadingState.label }}
                 </p>
@@ -51,7 +107,12 @@
           <td :colspan="columns.length + (modelValue ? 1 : 0)">
             <slot name="empty-state">
               <div :class="ui.emptyState.wrapper">
-                <UIcon v-if="emptyState.icon" :name="emptyState.icon" :class="ui.emptyState.icon" aria-hidden="true" />
+                <UIcon
+                  v-if="emptyState.icon"
+                  :name="emptyState.icon"
+                  :class="ui.emptyState.icon"
+                  aria-hidden="true"
+                />
                 <p :class="ui.emptyState.label">
                   {{ emptyState.label }}
                 </p>
@@ -78,7 +139,7 @@ import appConfig from '#build/app.config'
 
 // const appConfig = useAppConfig()
 
-function defaultComparator<T> (a: T, z: T): boolean {
+function defaultComparator<T>(a: T, z: T): boolean {
   return a === z
 }
 
@@ -93,11 +154,19 @@ export default defineComponent({
       default: () => defaultComparator
     },
     rows: {
-      type: Array as PropType<{ [key: string]: any, click?: Function }[]>,
+      type: Array as PropType<{ [key: string]: any; click?: Function }[]>,
       default: () => []
     },
     columns: {
-      type: Array as PropType<{ key: string, sortable?: boolean, direction?: 'asc' | 'desc', class?: string, [key: string]: any }[]>,
+      type: Array as PropType<
+        {
+          key: string
+          sortable?: boolean
+          direction?: 'asc' | 'desc'
+          class?: string
+          [key: string]: any
+        }[]
+      >,
       default: null
     },
     columnAttribute: {
@@ -105,7 +174,7 @@ export default defineComponent({
       default: 'label'
     },
     sort: {
-      type: Object as PropType<{ column: string, direction: 'asc' | 'desc' }>,
+      type: Object as PropType<{ column: string; direction: 'asc' | 'desc' }>,
       default: () => ({})
     },
     sortButton: {
@@ -125,11 +194,11 @@ export default defineComponent({
       default: false
     },
     loadingState: {
-      type: Object as PropType<{ icon: string, label: string }>,
+      type: Object as PropType<{ icon: string; label: string }>,
       default: () => appConfig.ui.table.default.loadingState
     },
     emptyState: {
-      type: Object as PropType<{ icon: string, label: string }>,
+      type: Object as PropType<{ icon: string; label: string }>,
       default: () => appConfig.ui.table.default.emptyState
     },
     ui: {
@@ -138,13 +207,23 @@ export default defineComponent({
     }
   },
   emits: ['update:modelValue'],
-  setup (props, { emit, attrs }) {
+  setup(props, { emit, attrs }) {
     // TODO: Remove
     const appConfig = useAppConfig()
 
-    const ui = computed<Partial<typeof appConfig.ui.table>>(() => defu({}, props.ui, appConfig.ui.table))
+    const ui = computed<Partial<typeof appConfig.ui.table>>(() =>
+      defu({}, props.ui, appConfig.ui.table)
+    )
 
-    const columns = computed(() => props.columns ?? Object.keys(omit(props.rows[0] ?? {}, ['click'])).map((key) => ({ key, label: capitalize(key), sortable: false })))
+    const columns = computed(
+      () =>
+        props.columns ??
+        Object.keys(omit(props.rows[0] ?? {}, ['click'])).map((key) => ({
+          key,
+          label: capitalize(key),
+          sortable: false
+        }))
+    )
 
     const sort = ref(defu({}, props.sort, { column: null, direction: 'asc' }))
 
@@ -159,19 +238,27 @@ export default defineComponent({
     })
 
     const selected = computed({
-      get () {
+      get() {
         return props.modelValue
       },
-      set (value) {
+      set(value) {
         emit('update:modelValue', value)
       }
     })
 
-    const indeterminate = computed(() => selected.value && selected.value.length > 0 && selected.value.length < props.rows.length)
+    const indeterminate = computed(
+      () =>
+        selected.value &&
+        selected.value.length > 0 &&
+        selected.value.length < props.rows.length
+    )
 
-    const emptyState = computed(() => ({ ...ui.value.default.emptyState, ...props.emptyState }))
+    const emptyState = computed(() => ({
+      ...ui.value.default.emptyState,
+      ...props.emptyState
+    }))
 
-    function compare (a: any, z: any) {
+    function compare(a: any, z: any) {
       if (typeof props.by === 'string') {
         const property = props.by as unknown as any
         return a?.[property] === z?.[property]
@@ -179,7 +266,7 @@ export default defineComponent({
       return props.by(a, z)
     }
 
-    function isSelected (row) {
+    function isSelected(row) {
       if (!props.modelValue) {
         return false
       }
@@ -187,9 +274,10 @@ export default defineComponent({
       return selected.value.some((item) => compare(toRaw(item), toRaw(row)))
     }
 
-    function onSort (column: { key: string, direction?: 'asc' | 'desc' }) {
+    function onSort(column: { key: string; direction?: 'asc' | 'desc' }) {
       if (sort.value.column === column.key) {
-        const direction = !column.direction || column.direction === 'asc' ? 'desc' : 'asc'
+        const direction =
+          !column.direction || column.direction === 'asc' ? 'desc' : 'asc'
 
         if (sort.value.direction === direction) {
           sort.value = defu({}, props.sort, { column: null, direction: 'asc' })
@@ -197,17 +285,38 @@ export default defineComponent({
           sort.value.direction = sort.value.direction === 'asc' ? 'desc' : 'asc'
         }
       } else {
-        sort.value = { column: column.key, direction: column.direction || 'asc' }
+        sort.value = {
+          column: column.key,
+          direction: column.direction || 'asc'
+        }
       }
     }
 
-    function onSelect (row) {
+    function onSelect(row) {
       if (!attrs.onSelect) {
         return
       }
 
       // @ts-ignore
       attrs.onSelect(row)
+    }
+
+    function selectAllRows() {
+      props.rows.forEach((row) => {
+        // If the row is already selected, don't select it again
+        if (selected.value.some((item) => compare(toRaw(item), toRaw(row)))) {
+          return
+        }
+        onSelect(row)
+      })
+    }
+
+    function handleChange(event: any) {
+      if (event.target.checked) {
+        selectAllRows()
+      } else {
+        selected.value = []
+      }
     }
 
     return {
@@ -225,7 +334,8 @@ export default defineComponent({
       emptyState,
       isSelected,
       onSort,
-      onSelect
+      onSelect,
+      handleChange
     }
   }
 })
